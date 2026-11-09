@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+venv/
+.env
+
+# Node & Svelte
+node_modules/
+dist/
+.svelte-kit/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
