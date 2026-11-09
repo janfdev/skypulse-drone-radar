@@ -1,84 +1,118 @@
 <script lang="ts">
   import type { FleetStats } from '../types';
+  import Card from './ui/card/Card.svelte';
+  import CardHeader from './ui/card/CardHeader.svelte';
+  import CardTitle from './ui/card/CardTitle.svelte';
+  import CardContent from './ui/card/CardContent.svelte';
+  import Badge from './ui/badge/Badge.svelte';
 
   let { stats }: { stats: FleetStats | null } = $props();
 </script>
 
-<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
   <!-- Card 1: Active Drones -->
-  <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur flex flex-col justify-between">
-    <div class="flex items-center justify-between text-xs font-mono text-slate-400">
-      <span>AIRBORNE FLEET</span>
-      <span class="flex h-2 w-2 relative">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-      </span>
-    </div>
-    <div class="mt-2 flex items-baseline gap-2">
-      <span class="text-2xl font-bold font-mono text-slate-100">{stats?.active_airborne ?? 0}</span>
-      <span class="text-xs font-mono text-slate-500">/ {stats?.total_drones ?? 0} ACTIVE</span>
-    </div>
-    <div class="mt-1 text-[11px] font-mono text-emerald-400">
-      100% TELEMETRY LOCK
-    </div>
-  </div>
+  <Card class="transition-shadow hover:shadow-md">
+    <CardHeader class="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
+      <CardTitle class="text-xs font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400">
+        Airborne Units
+      </CardTitle>
+      <Badge variant="success" class="text-[10px] font-mono px-1.5 py-0">
+        ONLINE
+      </Badge>
+    </CardHeader>
+    <CardContent class="p-4 pt-1">
+      <div class="flex items-baseline gap-2">
+        <span class="text-2xl font-bold font-mono tracking-tight text-slate-900 dark:text-slate-100">
+          {stats?.active_airborne ?? 0}
+        </span>
+        <span class="text-xs font-mono text-slate-500">
+          / {stats?.total_drones ?? 0} active
+        </span>
+      </div>
+      <p class="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 mt-1">
+        100% telemetry link lock
+      </p>
+    </CardContent>
+  </Card>
 
   <!-- Card 2: Alerts & Geofences -->
-  <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur flex flex-col justify-between">
-    <div class="flex items-center justify-between text-xs font-mono text-slate-400">
-      <span>GEOFENCE ALERTS</span>
+  <Card class="transition-shadow hover:shadow-md">
+    <CardHeader class="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
+      <CardTitle class="text-xs font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400">
+        Airspace Alerts
+      </CardTitle>
       {#if (stats?.alerts_count ?? 0) > 0}
-        <span class="px-1.5 py-0.5 rounded text-[10px] bg-red-950/80 text-red-400 border border-red-800 font-bold animate-pulse">
-          WARNING
-        </span>
+        <Badge variant="destructive" class="text-[10px] font-mono px-1.5 py-0">
+          RESTRICTED
+        </Badge>
       {:else}
-        <span class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-950/80 text-emerald-400 border border-emerald-800">
+        <Badge variant="outline" class="text-[10px] font-mono px-1.5 py-0 text-emerald-600 dark:text-emerald-400">
           CLEAR
-        </span>
+        </Badge>
       {/if}
-    </div>
-    <div class="mt-2 flex items-baseline gap-2">
-      <span class="text-2xl font-bold font-mono {(stats?.alerts_count ?? 0) > 0 ? 'text-red-400' : 'text-slate-100'}">
-        {stats?.alerts_count ?? 0}
-      </span>
-      <span class="text-xs font-mono text-slate-500">ZONES FLAGGED</span>
-    </div>
-    <div class="mt-1 text-[11px] font-mono text-slate-400">
-      {(stats?.alerts_count ?? 0) > 0 ? 'COLLISION AVOIDANCE ARMED' : 'NO ACTIVE INTRUSIONS'}
-    </div>
-  </div>
+    </CardHeader>
+    <CardContent class="p-4 pt-1">
+      <div class="flex items-baseline gap-2">
+        <span class="text-2xl font-bold font-mono tracking-tight {(stats?.alerts_count ?? 0) > 0 ? 'text-destructive' : 'text-slate-900 dark:text-slate-100'}">
+          {stats?.alerts_count ?? 0}
+        </span>
+        <span class="text-xs font-mono text-slate-500">
+          zones flagged
+        </span>
+      </div>
+      <p class="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-1">
+        {(stats?.alerts_count ?? 0) > 0 ? 'Collision avoidance ready' : 'No boundary intrusions'}
+      </p>
+    </CardContent>
+  </Card>
 
   <!-- Card 3: Avg Fleet Battery -->
-  <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur flex flex-col justify-between">
-    <div class="flex items-center justify-between text-xs font-mono text-slate-400">
-      <span>FLEET ENERGY</span>
-      <span class="text-[11px] font-mono text-cyan-400">LiPo HV</span>
-    </div>
-    <div class="mt-2 flex items-baseline gap-2">
-      <span class="text-2xl font-bold font-mono text-slate-100">{stats?.avg_battery_pct ?? 0}%</span>
-      <span class="text-xs font-mono text-slate-500">AVG SOC</span>
-    </div>
-    <!-- Battery Bar -->
-    <div class="mt-2 w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-      <div 
-        class="h-full rounded-full transition-all duration-500 {(stats?.avg_battery_pct ?? 0) < 30 ? 'bg-red-500' : (stats?.avg_battery_pct ?? 0) < 50 ? 'bg-amber-400' : 'bg-cyan-400'}"
-        style="width: {stats?.avg_battery_pct ?? 0}%;"
-      ></div>
-    </div>
-  </div>
+  <Card class="transition-shadow hover:shadow-md">
+    <CardHeader class="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
+      <CardTitle class="text-xs font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400">
+        Battery State
+      </CardTitle>
+      <span class="text-[11px] font-mono text-cyan-600 dark:text-cyan-400">LiPo HV</span>
+    </CardHeader>
+    <CardContent class="p-4 pt-1">
+      <div class="flex items-baseline gap-2">
+        <span class="text-2xl font-bold font-mono tracking-tight text-slate-900 dark:text-slate-100">
+          {stats?.avg_battery_pct ?? 0}%
+        </span>
+        <span class="text-xs font-mono text-slate-500">
+          avg SoC
+        </span>
+      </div>
+      <!-- Progress Bar -->
+      <div class="mt-2 w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={stats?.avg_battery_pct ?? 0} aria-valuemin={0} aria-valuemax={100}>
+        <div 
+          class="h-full rounded-full transition-all duration-300 {(stats?.avg_battery_pct ?? 0) < 30 ? 'bg-destructive' : (stats?.avg_battery_pct ?? 0) < 50 ? 'bg-amber-500' : 'bg-primary'}"
+          style="width: {stats?.avg_battery_pct ?? 0}%;"
+        ></div>
+      </div>
+    </CardContent>
+  </Card>
 
   <!-- Card 4: Avg Speed -->
-  <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur flex flex-col justify-between">
-    <div class="flex items-center justify-between text-xs font-mono text-slate-400">
-      <span>CRUISING VELOCITY</span>
+  <Card class="transition-shadow hover:shadow-md">
+    <CardHeader class="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
+      <CardTitle class="text-xs font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400">
+        Ground Speed
+      </CardTitle>
       <span class="text-[11px] font-mono text-slate-500">GPS SPD</span>
-    </div>
-    <div class="mt-2 flex items-baseline gap-2">
-      <span class="text-2xl font-bold font-mono text-slate-100">{stats?.avg_speed_mps ?? 0}</span>
-      <span class="text-xs font-mono text-slate-500">M/S (~{Math.round((stats?.avg_speed_mps ?? 0) * 3.6)} KM/H)</span>
-    </div>
-    <div class="mt-1 text-[11px] font-mono text-slate-400">
-      AIRSPACE DENSITY: NOMINAL
-    </div>
-  </div>
+    </CardHeader>
+    <CardContent class="p-4 pt-1">
+      <div class="flex items-baseline gap-2">
+        <span class="text-2xl font-bold font-mono tracking-tight text-slate-900 dark:text-slate-100">
+          {stats?.avg_speed_mps ?? 0}
+        </span>
+        <span class="text-xs font-mono text-slate-500">
+          m/s (~{Math.round((stats?.avg_speed_mps ?? 0) * 3.6)} km/h)
+        </span>
+      </div>
+      <p class="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-1">
+        Air corridor traffic: nominal
+      </p>
+    </CardContent>
+  </Card>
 </div>
